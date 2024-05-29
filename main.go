@@ -1,36 +1,20 @@
-package main 
+package main
 
-import(
+import (
+	"context"
 	"fmt"
-	"net/http"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/middleware"
-
+	"github.com/Vkanhan/go-redis-microservice/application"
 )
 
 func main() {
-	//create a new router using chi library
-	router := chi.NewRouter()
-	router.Use(middleware.Logger)
 
-	//define a route that match the path "/hello" and binds it to basicHandler func
-	router.Get("/hello", basicHandler)
+	//create an instance of the application
+	app := application.New()
 
-	//create an HTTP server instance with specified address and router
-	server := &http.Server{
-		Addr: ":3000",
-		Handler: router,
-	}
-
-	//start the server and listen to incoming request
-	err := server.ListenAndServe()
+	// Start the application by calling the Start method with a background context
+	err := app.Start(context.TODO())
 	if err != nil {
-		fmt.Println("failed to listen to port :3000", err)
+		fmt.Println("failed to start app: ", err)
 	}
-}
-
-//basicHandler  func will be called when request is made to "/hello" route
-func basicHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("go-microservice"))
 }
