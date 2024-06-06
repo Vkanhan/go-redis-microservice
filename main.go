@@ -12,7 +12,7 @@ import (
 func main() {
 
 	//create an instance of the application
-	app := application.New()
+	app := application.New(application.LoadConfig())
 
 	// Create a context that listens for an interrupt signal and cancel function is called when main exist
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
