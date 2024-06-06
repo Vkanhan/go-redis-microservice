@@ -4,12 +4,13 @@ import (
 	"net/http"
 
 	"github.com/Vkanhan/go-redis-microservice/handler"
+	"github.com/Vkanhan/go-redis-microservice/repository/order"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
 // loadRoutes sets up the routes for the application and returns the configured router.
-func loadRoutes() *chi.Mux {
+func (a *App) loadRoutes() {
 	// Create a new router instance using chi
 	router := chi.NewRouter()
 
@@ -22,17 +23,21 @@ func loadRoutes() *chi.Mux {
 	})
 
 	//group all the routes under /order handler
-	router.Route("/orders", loadOrderRoutes)
-	
+	router.Route("/orders", a.loadOrderRoutes)
+
 	// Return the configured router
-	return router
+	a.router = router
 }
 
 // loadOrderRoutes sets up the routes related to order operations
-func loadOrderRoutes(router chi.Router) {
+func (a *App)loadOrderRoutes(router chi.Router) {
 
 	// Initialize an order handler
-	orderHandler := &handler.Order{}
+	orderHandler := &handler.Order{
+		Repo: &order.RedisRepo{
+			Client: a.rdb,
+		},
+	}
 
 	router.Post("/", orderHandler.Create)
 	router.Get("/", orderHandler.List)
