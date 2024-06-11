@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"strconv"
 	"time"
@@ -14,7 +13,6 @@ import (
 
 	"github.com/Vkanhan/go-redis-microservice/model"
 	"github.com/Vkanhan/go-redis-microservice/repository/order"
-	
 )
 
 // Order struct is a handler for order-related HTTP requests
@@ -40,7 +38,7 @@ func (h *Order) Create(w http.ResponseWriter, r *http.Request) {
 
 	// Create a new order instance
 	order := model.Order{
-		OrderID:    rand.Uint64(),
+		OrderID:    uint64(uuid.New().ID()),
 		CustomerID: body.CustomerID,
 		LineItems:  body.LineItems,
 		CreatedAt:  &now,
@@ -63,10 +61,9 @@ func (h *Order) Create(w http.ResponseWriter, r *http.Request) {
 	//Encode the order response
 	if err := json.NewEncoder(w).Encode(order); err != nil {
 		fmt.Println("failed to encode the order: ", err)
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	
+
 }
 
 // List handles the HTTP GET request to list all orders
@@ -118,7 +115,6 @@ func (h *Order) List(w http.ResponseWriter, r *http.Request) {
 	// Encode the response into JSON and write it to the response writer
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		fmt.Println("failed to encode response:", err)
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -152,7 +148,6 @@ func (h *Order) GetByID(w http.ResponseWriter, r *http.Request) {
 	// Encode the order to JSON and write the response
 	if err := json.NewEncoder(w).Encode(o); err != nil {
 		fmt.Println("failed to marshal:", err)
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -228,7 +223,6 @@ func (h *Order) UpdateByID(w http.ResponseWriter, r *http.Request) {
 	// Encode the updated order to JSON and write the response
 	if err := json.NewEncoder(w).Encode(theOrder); err != nil {
 		fmt.Println("failed to marshal:", err)
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
