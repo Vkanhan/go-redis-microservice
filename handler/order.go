@@ -49,22 +49,24 @@ func (h *Order) Create(w http.ResponseWriter, r *http.Request) {
 	// Insert the new order into the repository
 	err := h.Repo.Insert(r.Context(), order)
 	if err != nil {
-		fmt.Println("failed to insert: %w", err)
+		fmt.Println("failed to insert: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// Marshal the order into JSON
-	res, err := json.Marshal(order)
-	if err != nil {
-		fmt.Println("failed to marshal: ", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	//Set the content type header
+	w.Header().Set("Content-Type", "application/json")
 
+	// Set the status code to 201 Created
 	w.WriteHeader(http.StatusCreated)
-	w.Write(res)
 
+	//Encode the order response
+	if err := json.NewEncoder(w).Encode(order); err != nil {
+		fmt.Println("failed to encode the order: ", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	
 }
 
 // List handles the HTTP GET request to list all orders
@@ -107,16 +109,18 @@ func (h *Order) List(w http.ResponseWriter, r *http.Request) {
 	response.Items = res.Orders
 	response.Next = res.Cursor
 
-	// Marshal the response into JSON
-	data, err := json.Marshal(response)
-	if err != nil {
-		fmt.Println("failed to marshal:", err)
+	// Set the content type to JSON
+	w.Header().Set("Content-Type", "application/json")
+
+	// Set the status code to 201 Created
+	w.WriteHeader(http.StatusOK)
+
+	// Encode the response into JSON and write it to the response writer
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		fmt.Println("failed to encode response:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	// Write the JSON response
-	w.Write(data)
 
 }
 
